@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Socket Chat</title>
+    <title>Encrypted Chat</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
@@ -20,10 +20,12 @@
 
     <div id="mario-chat">
         <h2>Secure Chat</h2>
+        <input id="Username" type="text" placeholder="Username" />
         <div id="chat-window">
             <div id="output"></div>
             <div id="feedback"></div>
         </div>
+        <div id="texty">Send Message to:</div>
         <input id="handle" type="text" placeholder="Handle" />
         <input id="message" type="text" placeholder="Message" />
         <button id="send">Send</button>

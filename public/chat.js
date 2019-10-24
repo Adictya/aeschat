@@ -3,6 +3,7 @@ const socket = io.connect("http://localhost:3300");
 let SECURE = false;
 
 let message = document.getElementById("message"),
+	username = document.getElementById("Username"),
 	handle = document.getElementById("handle"),
 	btn = document.getElementById("send"),
 	output = document.getElementById("output"),
@@ -80,17 +81,26 @@ socket.on("chat", function(data) {
 	// Get AES-128 key and iv
 	const key = data.key;
 	const iv = data.iv;
-	// Decrypted message
-	const encMsg = forge.util.createBuffer(data.message);
-	const decipher = forge.cipher.createDecipher("AES-CBC", key);
-	decipher.start({ iv: iv });
-	decipher.update(encMsg);
-	const result = decipher.finish();
-	console.log("Result", result);
-	const decryptedMsg = decipher.output.toString();
-	feedback.innerHTML = "";
-	output.innerHTML +=
-		"<p><strong>" + data.handle + ": </strong>" + decryptedMsg + "</p>";
+	if(data.handle==username.value || username.value==data.username)
+	{	
+		// Decrypted message
+		const encMsg = forge.util.createBuffer(data.message);
+		const decipher = forge.cipher.createDecipher("AES-CBC", key);
+		decipher.start({ iv: iv });
+		decipher.update(encMsg);
+		const result = decipher.finish();
+		console.log("Result", result);
+		const decryptedMsg = decipher.output.toString();
+		feedback.innerHTML = "";
+		output.innerHTML +=
+			"<p><strong>" + data.username + ": </strong>" + decryptedMsg + "</p>";
+	}
+	else
+	{
+		feedback.innerHTML = "";
+		output.innerHTML +=
+			"<p><strong>" + data.username + ": </strong>" + data.message + "</p>";
+	}
 });
 
 socket.on("typing", function(data) {
