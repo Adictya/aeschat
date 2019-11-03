@@ -1,17 +1,20 @@
 // Make conn.
 const socket = io.connect("http://localhost:3300");
 let SECURE = false;
-
+var content;
+let file = document.getElementById("file");
 let message = document.getElementById("message"),
-	username = document.getElementById("Username"),
+	username = prompt("Please enter your username", "Username"),
 	handle = document.getElementById("handle"),
 	btn = document.getElementById("send"),
 	output = document.getElementById("output"),
+	usrname = document.getElementById("Username"),
+	fcontent,
 	feedback = document.getElementById("feedback");
 
 window.onload = () => {
 	let body = document.body;
-
+	usrname.innerHTML = "Username:  <strong>" + username + "<strong>";
 	// Generate b
 	const b = Math.floor(Math.random() * 9) + 1;
 	// Send request to obtain p & q from server
@@ -51,7 +54,16 @@ window.onload = () => {
 	});
 };
 
+file.addEventListener("change",function(){
+	console.log("File",file.value);
+	socket.emit("readfile",{
+		file: file.value.substr(12)
+	})
+})
+
+
 // Emit events
+
 btn.addEventListener("click", function() {
 	// Generate AES-128 key and IV
 	const key = forge.random.getBytesSync(16);
@@ -65,23 +77,32 @@ btn.addEventListener("click", function() {
 	socket.emit("chat", {
 		message: encryptedMsg,
 		handle: handle.value,
+		username : username,
+		filecontent : fcontent,
 		key: key,
 		iv: iv
 	});
 	message.value = "";
+	handle.value = "";
 	console.log("secure", SECURE);
 });
 
 message.addEventListener("keypress", function() {
-	socket.emit("typing", handle.value);
+	socket.emit("typing", username);
 });
 
+
 // Listen for events
+
+socket.on("fileread" ,function(file){
+	fcontent = file.fcontents;
+})
+
 socket.on("chat", function(data) {
 	// Get AES-128 key and iv
 	const key = data.key;
 	const iv = data.iv;
-	if(data.handle==username.value || username.value==data.username)
+	if(data.handle==username || username==data.username)
 	{	
 		// Decrypted message
 		const encMsg = forge.util.createBuffer(data.message);
@@ -93,13 +114,13 @@ socket.on("chat", function(data) {
 		const decryptedMsg = decipher.output.toString();
 		feedback.innerHTML = "";
 		output.innerHTML +=
-			"<p><strong>" + data.username + ": </strong>" + decryptedMsg + "</p>";
+			"<p><strong>" + data.username + ": </strong>" + decryptedMsg + "<a href='./hi.txt'>Lol</a>" + "</p>";
 	}
 	else
 	{
 		feedback.innerHTML = "";
 		output.innerHTML +=
-			"<p><strong>" + data.username + ": </strong>" + data.message + "</p>";
+			"<p><strong>" + data.username + ": </strong>" + data.message + data.filecontent + "</p>";
 	}
 });
 

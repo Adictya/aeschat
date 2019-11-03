@@ -1,7 +1,7 @@
 const express = require("express");
 const socket = require("socket.io");
 const forge = require("node-forge");
-
+const fs = require('fs');
 const util = require("./utils/primitive-root");
 
 const app = express();
@@ -14,6 +14,15 @@ app.use(express.static("public"));
 
 // Socket setup
 const io = socket(server);
+
+function Readfile (ffile)
+{
+	var fcontents;
+	fs.readFile(ffile,'utf8',function(err,contents){
+		console.log("file contents are" , contents);
+	});
+	console.log("File Contents in function",fcontents);
+}
 
 io.on("connection", socket => {
 	console.log("Conn. established");
@@ -49,7 +58,10 @@ io.on("connection", socket => {
 			A: A
 		});
 	});
-
+	
+	socket.on("readfile", file => {
+		io.sockets.emit("fileread",{fcontents : fs.readFileSync(file.file,'utf8')})
+	});
 	// Handle chat event
 	socket.on("chat", data => {
 		io.sockets.emit("chat", data);
